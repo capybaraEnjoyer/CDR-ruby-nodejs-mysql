@@ -3,11 +3,9 @@ CREATE DATABASE students;
 -- Las tablas timetables y tasks son comunes? 
 
 CREATE TABLE students(name varchar(255), studentID int);
-SHOW COLUMNS FROM students;
 INSERT INTO students (name, studentID) VALUES ('jesus azuaje' , '00000000');
 
 CREATE TABLE marks(subject varchar(255), name varchar(255), mark decimal(3,1));
-SHOW COLUMNS FROM marks;
 INSERT INTO marks(subject, name, mark) VALUES ('PBE', 'CDR', 9.2);
 INSERT INTO marks(subject, name, mark) VALUES ('ONELE', 'PR1', 3.7);
 
