@@ -1,5 +1,8 @@
 const http = require('http');
 const mysql = require('mysql');
+var url = require('url')
+var parse = require('url-parse');
+
 const port = 3000;
 
 const db = mysql.createConnection({
