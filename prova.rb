@@ -31,6 +31,7 @@ class Window < Gtk::Window
 		end
 		@entry.signal_connect("activate") do
             texto = @entry.text
+            send_query(uid, texto)
             @entry.text = ""
             stop_timer
         end
@@ -145,13 +146,15 @@ class Window < Gtk::Window
 	
 	def sendQuery(uid, query)
 		GLib::Idle.add do
-		if query.include? '?'
-			uri = URI("http://138.68.152.226:3000/#{query}&uid=#{uid}")
-		else
-			uri = URI("http://138.68.152.226:3000/#{query}?uid=#{uid}")
-		end
-		res = JSON.parse(Net::HTTP.get(uri))
-		
+		begin
+			if query.include? '?'
+				uri = URI("http://138.68.152.226:3000/#{query}&uid=#{uid}")
+			else
+				uri = URI("http://138.68.152.226:3000/#{query}?uid=#{uid}")
+			end
+			res = JSON.parse(Net::HTTP.get(uri))
+		rescue StandardError => e
+			puts "Error al realizar la solicitud: #{e.message}"
 		end
 	end
 end
