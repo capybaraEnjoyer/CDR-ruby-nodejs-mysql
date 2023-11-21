@@ -4,6 +4,7 @@ require "ruby-nfc"
 require "net/http"
 require "json"
 require_relative "Rfid"
+require_relative "Display"
 
 class Window < Gtk::Window 
 	def initialize
@@ -16,6 +17,7 @@ class Window < Gtk::Window
 			Gtk.main_quit
 			@thr.kill if @thr
 		end
+		@display = Display.new(4, 20)
 		@grid = Gtk::Grid.new
 		@grid.row_spacing = 10 
 		@grid.column_spacing = 10 
@@ -43,16 +45,17 @@ class Window < Gtk::Window
 	end
 		
 	def start_timer
-		@timeout_id = GLib::Timeout.add_seconds(60) do
+		@timeout = GLib::Timeout.add_seconds(60) do
 			puts "Timer esgotat. Tancant el programa."
+			@display.timeout_disp
 			Gtk.main_quit				
 			false 
 		end
 	end
 
 	def stop_timer
-		GLib::Source.remove(@timeout_id) if @timeout_id			
-		@timeout_id = nil
+		GLib::Source.remove(@timeout) if @timeout			
+		@timeout = nil
 	end
 		
 	def escenari_ini 
@@ -65,6 +68,8 @@ class Window < Gtk::Window
 		@grid.attach(blanc1, 0 ,0 ,19 ,12)
 		@grid.attach(label, 19 ,12 ,1 ,1)
 		label.show
+		blanc1.show
+		@display.lectura_uid
 		rfid_ini
 	end
 		
@@ -102,6 +107,7 @@ class Window < Gtk::Window
 		@entry.show
 		blanc1.show
 		blanc2.show
+		@display.registre(nom)
 	end	
 		
 	def uid_erronea(uid)
@@ -116,6 +122,7 @@ class Window < Gtk::Window
 		error_label.show
 		@logout_button.show
 		blanc1.show
+		@display.error_usuari
 	end
 		
 	def crear_blanc
@@ -131,30 +138,40 @@ class Window < Gtk::Window
 		
 	def get_student(uid)
 		nombre = nil
-		GLib::Idle.add do
-			uri = URI("http://78.46.5.205:3000/students?uid=#{uid}")
-			res = JSON.parse(Net::HTTP.get(uri))
-			if res.key?("nombre")
-				nombre = res["nombre"]
-				return nombre
+		begin
+			uri = URI("http://169.254.209.172:3000/students?uid=#{uid}")
+			res = Net::HTTP.get_response(uri)
+			if res.is_a?(Net::HTTPSuccess)
+				data = JSON.parse(res.body)
+				if data.key?("nombre")
+					return data["nombre"]
+				else
+					puts("No existeix l'estudiant") 
+					return nil
+				end
 			else
-				puts("No existeix l'estudiant") 
+				puts("Error en la solicitud HTTP: #{res.code}")
 				return nil
 			end
+		rescue StandardError => e
+			puts("Error en la solicitud HTTP: #{e.message}")
+			return nil
 		end
 	end
 	
-	def sendQuery(uid, query)
+	def send_query(uid, query)
 		GLib::Idle.add do
-		begin
-			if query.include? '?'
-				uri = URI("http://138.68.152.226:3000/#{query}&uid=#{uid}")
-			else
-				uri = URI("http://138.68.152.226:3000/#{query}?uid=#{uid}")
+			begin
+				if query.include? '?'
+					uri = URI("http://90.167.222.44:3000/#{query}&uid=#{uid}")
+				else
+					uri = URI("http://90.167.222.44:3000/#{query}?uid=#{uid}")
+				end
+				res = JSON.parse(Net::HTTP.get(uri))
+			rescue StandardError => e
+				puts "Error al realitzar la solicitud: #{e.message}"
+				@display.error_querry
 			end
-			res = JSON.parse(Net::HTTP.get(uri))
-		rescue StandardError => e
-			puts "Error al realizar la solicitud: #{e.message}"
 		end
 	end
 end
