@@ -7,7 +7,7 @@ use prueba;
 CREATE TABLE if not exists students(name varchar(255), 
 									studentID int PRIMARY KEY);
 INSERT INTO students (name, studentID) VALUES ('jesus azuaje' , '00000000');
-INSERT INTO students (name, studentID) VALUES ('joan Guardia' , 'E674E1B0');
+INSERT INTO students (name, studentID) VALUES ('Pablo Castillo' , '0000001');
 
 CREATE TABLE if not exists marks(studentID int, 
 								 subject varchar(255), 
