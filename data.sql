@@ -5,7 +5,7 @@ use prueba;
 -- Se puede crear otra columna llamada "ID" en marks para utilizar [ FOREIGN KEY (ID) REFERENCES students(studentID) ] ? -> si
 -- Las tablas timetables y tasks son comunes -> si
 
-GRANT ALL PRIVILEGES ON *.* TO 'GuardiaAlonso'@'localhost' WITH GRANT OPTION;
+-- GRANT ALL PRIVILEGES ON *.* TO 'GuardiaAlonso'@'localhost' WITH GRANT OPTION;
 CREATE TABLE if not exists students(name varchar(255), 
 									studentID varchar(255) PRIMARY KEY);
 INSERT INTO students (name, studentID) VALUES ('Jesus Azuaje' , 'D65DE4B0');
