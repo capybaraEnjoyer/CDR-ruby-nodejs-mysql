@@ -42,15 +42,19 @@ const server = http.createServer((req, res) => {
         if (results.length > 0) {
           const { name, studentID } = results[0];
           console.log('Name:', results[0].name);
+          const response = JSON.stringify({ 'nombre': results[0].name });
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({'nombre': results[0].name }));
+          res.end(response);
       } else {
           console.log('No user found with the specified ID.');
-          res.end(JSON.stringify({'message': 'No user found with the specified ID.'}));
+          const response = JSON.stringify({ 'message': 'No user found with the specified ID.' });
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(response);
       }
     });
   }
-    if (pathname == '/timetables') {
+    else if (pathname === '/timetables') {
+      console.log('timetables ');
       const params = myURL.searchParams;
       //var body = reqUrl.query;
       var qr = 'SELECT * FROM timetables';
@@ -100,24 +104,20 @@ const server = http.createServer((req, res) => {
           return;
         }
         if (results.length > 0) {
-          console.log(response);
+          console.log("response");
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(response));
+          res.end(JSON.stringify(results));
 
         } else {
           console.log('No user found with the specified ID.');
           res.end(JSON.stringify({'message': 'No user found with the specified ID.'}));
       }
     });
-    }
+    }else if (pathname === '/tasks') {
 
-    if (pathname == '/tasks') {
-    }
+    }else if (pathname === '/marks') {
 
-    if (pathname == '/marks') {
-    }
-
-    else {
+    }else {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('Not Found');
     }
@@ -140,5 +140,5 @@ server.listen(port, () => {
     });
   });
   */
-})
+});
 //HAVING CLEAR WHAT IS NECESSARY TO CONNECT MYSQL AND HOW DO JAVASCRIPT EXECUTES?
