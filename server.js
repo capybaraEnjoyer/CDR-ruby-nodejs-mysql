@@ -2,7 +2,7 @@ const http = require('http');
 const mysql = require('mysql');
 var myURL = require('url');
 const port = 3000;
-const hostname = '90.167.222.44';
+const hostname = '192.168.127.182';
 //const host = 192.168.56.1;
 
 const db = mysql.createConnection({
@@ -20,6 +20,7 @@ db.connect((err) => {
   console.log('Connected to MySQL database');
 });
 
+/*
 function checkIdExists(tableName, columnName, id, callback) {
   const query = `SELECT EXISTS(SELECT 1 FROM ?? WHERE ?? = ?) AS exists`;
 
@@ -32,6 +33,7 @@ function checkIdExists(tableName, columnName, id, callback) {
     callback(null, results[0].exists === 1);
   });
 }
+*/
 
 //Creamos el objeto servidor
 const server = http.createServer((req, res) => {
@@ -42,48 +44,24 @@ const server = http.createServer((req, res) => {
     q = myURL.pathname(req.url); //nos devuelve el path al que se esta accediendo, el cual va después del host y antes de la query  : /students, /timetable, /tasks, /marks.
     if (q.pathname == '/students') { //CASO DE IDENTIFICACIÓN DE ESTUDIANTE.
       console.log("entrar");
-      uid = myURL.URLSearchParams(req.url).get(uid); //nos devuelve el id del estudiante a consultar.
-/*
-      if (err) {
-        console.error('Error querying the database:', err);
-        return;
-      }
+      idToFind = myURL.URLSearchParams(req.url).get(uid); 
+      const query = 'SELECT name FROM students WHERE id = ?'
 
-      /*
-      *
-      *
-      * 
-      *
-      *
-      * 
-      //FUNCION QUE REVISA SI ESTA EL UID DEL ESTUDIANTE
-      
-      checkIdExists('students', 'studentID', uid, (err, exists) => {
-        if (err) {
-          console.error('An error occurred:', err);
-        } else {
-          console.log('Does the ID exist?', exists);
+      db.query(query, [idToFind], (err, results) => {
+        if(err){
+          console.error('An error occurred while executing the query');
+          throw err;
         }
-        //connection.end();
-      });
-
-
-      // Respond with JSON data from the database
-      console.log(res(JSON.stringify({
-        'uid': student_id,
-        'nombre': student.name
-      })));
-
-      res.end(JSON.stringify({
-        'uid': student_id,
-        'nombre': student.name
-      }))
-      */
-      console.log("conectao")
-      res.end(JSON.stringify({
-        'uid': uid,
-      }))
-      
+        if (results.length > 0) {
+          // Assuming 'id' is unique, there should only be one matching row
+          console.log('Name:', results[0].name);
+          res.end(JSON.stringify({
+            'uid': uid,
+          }))
+      } else {
+          console.log('No user found with the specified ID.');
+      }
+      })
     }
 
     if (q.pathname == '/timetables') {
@@ -152,7 +130,7 @@ const server = http.createServer((req, res) => {
 
 });
 
-server.listen(port, () => {
+server.listen(port, hostname, () => {
   console.log(`Server is listening on http://${hostname}:${port}/`);
   /*
   const query = 'SELECT mark FROM marks WHERE studentID = 0;';
