@@ -51,54 +51,64 @@ const server = http.createServer((req, res) => {
     });
   }
     if (pathname == '/timetables') {
-      /*
-      const reqUrl = url.parse(req.url, true);
-      var body = reqUrl.query;
+      const params = myURL.searchParams;
+      //var body = reqUrl.query;
       var qr = 'SELECT * FROM timetables';
       var bol = 0;
-      if (body.subject !== undefined) {
+      if (params.has('subject')) {
 
-        qr += ' WHERE subject="' + body.subject + '"';
+        qr += ' WHERE subject="' + params.get('subject') + '"';
         bol = 1;
       }
-      if (body.room !== undefined) {
+      if (params.has('room')) {
 
         if (bol == 1) {
           qr += ' AND '
         } else {
           qr += ' WHERE ';
         }
-        qr += ' room = "' + body.room + '"';
+        qr += ' room = "' + params.get('room') + '"';
         bol = 1;
       }
-      if (body.day !== undefined) {
+      if (params.has('day')) {
 
         if (bol == 1) {
           qr += ' AND '
         } else {
           qr += ' WHERE ';
         }
-        qr += ' day = "' + body.day + '"';
+        qr += ' day = "' + params.get('day') + '"';
         bol = 1;
       }
-      if (body.hour !== undefined) {
+      if (params.has('hour')) {
 
         if (bol == 1) {
           qr += ' AND '
         } else {
           qr += ' WHERE ';
         }
-        qr += ' hour = "' + body.hour + '"';
+        qr += ' hour = "' + params.get('hour') + '"';
         bol = 1;
       }
       qr += ";";
 
-      let response = await todoDao.readEntities(qr);
-      console.log(response);
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(response));
-      */
+      db.query(qr, (err, results) => {
+        if(err){
+          console.error('An error occurred while executing the query', err);
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 'error': 'Internal server error' }));
+          return;
+        }
+        if (results.length > 0) {
+          console.log(response);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(response));
+
+        } else {
+          console.log('No user found with the specified ID.');
+          res.end(JSON.stringify({'message': 'No user found with the specified ID.'}));
+      }
+    });
     }
 
     if (pathname == '/tasks') {
