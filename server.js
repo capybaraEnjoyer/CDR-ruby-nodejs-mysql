@@ -1,15 +1,15 @@
 const http = require('http');
 const mysql = require('mysql');
-var myURL = require('url');
+const url = require('url');
 const port = 3000;
-const hostname = '192.168.127.182';
-//const host = 192.168.56.1;
+
 
 const db = mysql.createConnection({
   host: 'localhost', //Si la base de datos y el servidor se ejecutan en la misma maquina
-  user: 'azcam',
-  password: 'Reproche_2211',
+  user: 'GuardiaAlonso',
+  password: 'Jjooaann03',
   database: 'prueba',
+  port: 3306,
 });
 
 db.connect((err) => {
@@ -20,51 +20,37 @@ db.connect((err) => {
   console.log('Connected to MySQL database');
 });
 
-/*
-function checkIdExists(tableName, columnName, id, callback) {
-  const query = `SELECT EXISTS(SELECT 1 FROM ?? WHERE ?? = ?) AS exists`;
-
-  db.query(query, [tableName, columnName, id], (err, results) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    // results[0].exists will be 1 if the ID exists, 0 otherwise
-    callback(null, results[0].exists === 1);
-  });
-}
-*/
-
 //Creamos el objeto servidor
 const server = http.createServer((req, res) => {
-
+   
   if (req.method === 'GET') {
+    const myURL = new URL(`http://${req.headers.host}${req.url}`);
+    const pathname = myURL.pathname;
 
-    // Perform a MySQL query to fetch data
-    q = myURL.pathname(req.url); //nos devuelve el path al que se esta accediendo, el cual va después del host y antes de la query  : /students, /timetable, /tasks, /marks.
-    if (q.pathname == '/students') { //CASO DE IDENTIFICACIÓN DE ESTUDIANTE.
+    if (pathname === '/students') { //CASO DE IDENTIFICACIÓN DE ESTUDIANTE.
       console.log("entrar");
-      idToFind = myURL.URLSearchParams(req.url).get(uid); 
-      const query = 'SELECT name FROM students WHERE id = ?'
+      idToFind = myURL.searchParams.get('uid'); 
+      const query = 'SELECT * FROM students WHERE studentID = ?';
 
       db.query(query, [idToFind], (err, results) => {
         if(err){
-          console.error('An error occurred while executing the query');
-          throw err;
+          console.error('An error occurred while executing the query', err);
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 'error': 'Internal server error' }));
+          return;
         }
         if (results.length > 0) {
-          // Assuming 'id' is unique, there should only be one matching row
+          const { name, studentID } = results[0];
           console.log('Name:', results[0].name);
-          res.end(JSON.stringify({
-            'uid': uid,
-          }))
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({'nombre': results[0].name }));
       } else {
           console.log('No user found with the specified ID.');
+          res.end(JSON.stringify({'message': 'No user found with the specified ID.'}));
       }
-      })
-    }
-
-    if (q.pathname == '/timetables') {
+    });
+  }
+    if (pathname == '/timetables') {
       /*
       const reqUrl = url.parse(req.url, true);
       var body = reqUrl.query;
@@ -115,10 +101,10 @@ const server = http.createServer((req, res) => {
       */
     }
 
-    if (q.pathname == '/tasks') {
+    if (pathname == '/tasks') {
     }
 
-    if (q.pathname == '/marks') {
+    if (pathname == '/marks') {
     }
 
     else {
@@ -130,8 +116,8 @@ const server = http.createServer((req, res) => {
 
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server is listening on http://${hostname}:${port}/`);
+server.listen(port, () => {
+  console.log(`Server is listening on ${port}/`);
   /*
   const query = 'SELECT mark FROM marks WHERE studentID = 0;';
 
