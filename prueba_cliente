@@ -167,7 +167,7 @@ class Window < Gtk::Window
 				uri = URI("http://169.254.209.172:3000/#{query}?uid=#{uid}")
 			end
 			res = JSON.parse(Net::HTTP.get(uri))
-			print_taula(res)
+			
 		rescue StandardError => e
 			puts "Error al realitzar la solicitud: #{e.message}"
 		end
