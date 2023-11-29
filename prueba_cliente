@@ -47,7 +47,7 @@ class Window < Gtk::Window
 	end
 		
 	def start_timer
-		@timeout = GLib::Timeout.add_seconds(60) do
+		@timeout = GLib::Timeout.add_seconds(120) do
 			puts "Timer esgotat. Tancant el programa."
 			Gtk.main_quit				
 			false 
@@ -140,116 +140,40 @@ class Window < Gtk::Window
 		nombre = nil
 		begin
 			uri = URI("http://169.254.209.172:3000/students?uid=#{uid}")
-			res = Net::HTTP.get_response(uri)
-			if res.is_a?(Net::HTTPSuccess)
-				data = JSON.parse(res.body)
-				if data.key?("nombre")
-					return data["nombre"]
-				else
-					puts("No existeix l'estudiant") 
-					return nil
-				end
+			res = JSON.parse(Net::HTTP.get(uri))
+			if res.key?("nombre")
+				return res["nombre"]
 			else
-				puts("Error en la solicitut HTTP: #{res.code}")
+				puts("No existeix l'estudiant") 
 				return nil
 			end
-		rescue StandardError => e
-			puts("Error en la solicitut HTTP: #{e.message}")
-			return nil
 		end
 	end
 	
 	def send_query(uid, query)
-		GLib::Idle.add do
-			if query.include? '?'
-				uri = URI("http://169.254.209.172:3000/#{query}&uid=#{uid}")
-			else
-				uri = URI("http://169.254.209.172:3000/#{query}?uid=#{uid}")
-			end
-			res = JSON.parse(Net::HTTP.get(uri))
-			
-		rescue StandardError => e
-			puts "Error al realitzar la solicitud: #{e.message}"
-		end
-	end
-	/*
-	def handle_timetables_response(response)
-		if response.is_a?(Net::HTTPSuccess)
-				data = JSON.parse(response.body)
-			if data.key?('message')
-				puts data['message']
-			else
-				process_timetables_data(data)
-		end
-		else
-			puts "Error: #{response.code}"
-		end
-	end
 	
-	def process_timetables_data(data)
-		if data.is_a?(Array)
-			data.each do |entry|
-				puts "Day: #{entry['day']}, Hour: #{entry['hour']}, Subject: #{entry['subject']}, Room: #{entry['room']}"	  
-			end
+		if query.include? '?'
+			uri = URI("http://169.254.209.172:3000/#{query}&uid=#{uid}")
 		else
-			puts 'Respuesta inesperada del servidor para horarios'
+			uri = URI("http://169.254.209.172:3000/#{query}?uid=#{uid}")
 		end
+		res = JSON.parse(Net::HTTP.get(uri))
+		print_taula(res)
 	end
 	
 	def print_taula(data)
 		clear_grid
-		
-		@grid.set_column_homogeneous(true)
-		results_list = get_new_list(data[0].keys.length)
-		keys_of_table =  data[0].keys
-		i = 0
-		while i < data.length
-			iter = results_list.append #Crea i retorna fila (objecte Treelter) afegida, s'afegeix a última posició.
-			j = 0
-			while j < keys_of_table.length 
-				iter.set_value(j,string_cleaner(data[i].values_at(keys_of_table[j]).to_s))
-				j += 1
+		keys = data.keys
+		values = data.values
+		data.each_with_index do |row, i|
+			row.each_with_index do |value, j|
+				label = Gtk::Label.new(value.to_s)	
+				@grid.attach(label, j, i, 1, 1)
+				label.show
 			end
-				i += 1
 		end
-		treeview = Gtk::TreeView.new(results_list)  
-		
-		i = 0
-		while i < keys_of_table.length
-			rndr = Gtk::CellRendererText.new()
-			columna = Gtk::TreeViewColumn.new(keys_of_table[i], rndr,:text=>i)
-			treeview.append_column(columna)
-			i +=1
-		end
+	end
 
-		scr_treelist = Gtk::ScrolledWindow.new()
-		scr_treelist.set_vexpand(true)
-		@grid.attach(scr_treelist,0,0,5,10)
-		i = 1
-		scr_treelist.add(treeview)
-		scr_treelist.show
-	end
-	
-	def get_new_list(columns)
-		case columns
-			when 3
-				puts "creating 3 column list"
-				return Gtk::ListStore.new(String,String,String)
-			when 4
-				puts "creating 4 column list"
-				return Gtk::ListStore.new(String,String,String,String)
-			else
-				puts "FATAL ERROR: Unexpected quantity of hashes (" + columns.to_s + ")"
-				Gtk.main_quit
-				return nil
-		end
-	end
-	
-	def string_cleaner(str)
-		char_arr = str.chars
-		return char_arr[2,str.length-4].join("")
-	end
-*/
 end
 finestra = Window.new
 finestra.show_all
