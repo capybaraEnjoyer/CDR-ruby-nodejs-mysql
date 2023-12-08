@@ -1,0 +1,33 @@
+function manejarConstraints(url) {
+    const parsedUrl = new URL(url);
+    const constraints = parsedUrl.searchParams;
+    const constraintsSeparadas = {};
+
+    for (const [key, value] of constraints.entries()) {
+        
+        const [cleanKey, operator] = key.split(/\[(gt|lt|gte)\]/).filter(Boolean);
+
+        if (!constraintsSeparadas[cleanKey]) {
+            constraintsSeparadas[cleanKey] = {};
+        }
+
+        if (operator) {
+            
+            constraintsSeparadas[cleanKey][operator] = value;
+        } else {
+
+            constraintsSeparadas[cleanKey] = value;
+        }
+    }
+    return constraintsSeparadas;
+}
+
+
+const urlEjemplo = "https://ejemplo.com/ruta?constraint1=valor1&constraint2=valor2&constraint3[gt]=5&constraint4[lte]=10&constraint5[gte]=3"
+
+const result = manejarConstraints(urlEjemplo);
+for (const key in result) {
+    console.log(`Key: ${key}, Value: ${result[key]}`);
+}
+console.log("Constraints separadas:");
+console.log(result);
