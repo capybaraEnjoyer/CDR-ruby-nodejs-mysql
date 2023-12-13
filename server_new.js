@@ -19,7 +19,7 @@ db.connect((err) => {
   }
   console.log('Connected to MySQL database');
 
-  
+
 });
 //Creamos el objeto servidor
 const server = http.createServer((req, res) => {
@@ -28,82 +28,53 @@ const server = http.createServer((req, res) => {
     const myURL = new URL(`http://${req.headers.host}${req.url}`);
     const pathname = myURL.pathname.replace("/", "");
     console.log(pathname);
+    const constraintsSeparadas = manejarConstraints(myURL);
+    var query = `SELECT * FROM ${pathname}`;
+    var primero = true;
 
-    if (pathname === 'students') { //CASO DE IDENTIFICACION DE ESTUDIANTE.
-      console.log("entrar");
-      idToFind = myURL.searchParams.get('uid');
-      const query = 'SELECT * FROM students WHERE studentID = ?';
-
-      db.query(query, [idToFind], (err, results) => {
-        if (err) {
-          console.error('An error occurred while executing the query', err);
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ 'error': 'Internal server error' }));
-          return;
-        }
-        if (results.length > 0) {
-          const { name, studentID } = results[0];
-          console.log('Name:', results[0].name);
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ 'nombre': results[0].name }));
-        } else {
-          console.log('No user found with the specified ID.');
-          res.end(JSON.stringify({ 'message': 'No user found with the specified ID.' }));
-        }
-      });
-    }
-
-    else if (pathname === 'timetables' || pathname === 'tasks' || pathname === 'marks') {
-
-      const constraintsSeparadas = manejarConstraints(myURL);
-      var query = `SELECT * FROM ${pathname}`;
-      var primero = true;
-
-      for (const key in constraintsSeparadas) {
-        if (key === 'uid' && pathname != 'marks') {
-          continue;
-        }
-        else if (key === 'uid' && pathname == 'marks') {
-          idToFind = myURL.searchParams.get('uid');
-          query += ` WHERE studentID = ${idToFind}`
-        }
-        else if (primero) {
-          query += ` WHERE ${key} = ${constraintsSeparadas[key]}`
-          primero = false;
-        }
-        else if (!primero) {
-          query += ` AND ${key} = ${constraintsSeparadas[key]}`  
-        }
+    for (const key in constraintsSeparadas) {
+      if (key === 'uid' && (pathname == 'marks' || pathname == 'students')) {
+        idToFind = myURL.searchParams.get('uid');
+        query += ` WHERE ${key} = "${idToFind}"`
       }
-      query += ";";
-      console.log(query);
-      db.query(query, (err, results) => {
-        if (err) {
-          console.error('An error occurred while executing the query', err);
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ 'error': 'Internal server error' }));
-          return;
-        }
-        if (results.length > 0) {
-          console.log("response");
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(results));
-
-        } else {
-          console.log('No user found with the specified ID.');
-          res.end(JSON.stringify({ 'message': 'No user found with the specified ID.' }));
-        }
-      });
-
-
+      else if(key === 'uid'){
+        continue;
+      }
+      else if (primero) {
+        query += ` WHERE ${key} = "${constraintsSeparadas[key]}"`
+        primero = false;
+      }
+      else if (!primero) {
+        query += ` AND ${key} = "${constraintsSeparadas[key]}"`
+      }
     }
+    query += " ;";
+    console.log(query);
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('An error occurred while executing the query', err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 'error': 'Internal server error' }));
+        return;
+      }
+      if (results.length > 0) {
+        console.log("response");
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(results));
 
-    else {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('Not Found');
-    }
+      } else {
+        console.log('No user found with the specified ID.');
+        res.end(JSON.stringify({ 'message': 'No user found with the specified ID.' }));
+      }
+    });
+
+
   }
 
+  else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  }
 });
 
 function manejarConstraints(url) {
@@ -130,5 +101,5 @@ function manejarConstraints(url) {
 }
 
 server.listen(port, () => {
-    console.log(`Server is listening on ${port}/`);
-}); 
+  console.log(`Server is listening on ${port}/`);
+});
