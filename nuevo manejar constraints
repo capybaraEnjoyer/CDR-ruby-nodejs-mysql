@@ -1,0 +1,26 @@
+function manejarConstraints(url) {
+    const parsedUrl = new URL(url);
+    const constraints = parsedUrl.searchParams;
+    const constraintsSeparadas = {};
+
+    for (const [key, value] of constraints.entries()) {
+
+        var [cleanKey, operator] = key.split(/\[(gt|lt|gte|lte)\]/).filter(Boolean);
+
+        if (!constraintsSeparadas[cleanKey]) {
+            constraintsSeparadas[cleanKey] = {};
+        }
+        if (operator) {
+            var casos = { gte: ">=", lte: "<=", gt: ">", lt: "<" };
+            operator = operator.replace(/gte|lte|lt|gt/gi, function (matched) {
+                return casos[matched];
+            });
+
+            constraintsSeparadas[cleanKey][operator] = value;
+        } else {
+
+            constraintsSeparadas[cleanKey] = value;
+        }
+    }
+    return constraintsSeparadas;
+}
