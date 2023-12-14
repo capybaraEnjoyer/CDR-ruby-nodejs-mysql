@@ -5,31 +5,112 @@ use prueba;
 -- Se puede crear otra columna llamada "ID" en marks para utilizar [ FOREIGN KEY (ID) REFERENCES students(studentID) ] ? -> si
 -- Las tablas timetables y tasks son comunes -> si
 
--- GRANT ALL PRIVILEGES ON *.* TO 'GuardiaAlonso'@'localhost' WITH GRANT OPTION;
-CREATE TABLE if not exists students(name varchar(255), 
-									studentID varchar(255) PRIMARY KEY);
-INSERT INTO students (name, studentID) VALUES ('Jesus Azuaje' , 'D65DE4B0');
-INSERT INTO students (name, studentID) VALUES ('Pablo Castillo' , '0000001');
-INSERT INTO students (name, studentID) VALUES ('Joan Guardia' , 'E674E1B0');
+GRANT ALL PRIVILEGES ON *.* TO 'GuardiaAlonso'@'localhost' WITH GRANT OPTION;
+CREATE TABLE if not exists students(name varchar(255), uid varchar(255) PRIMARY KEY);
+INSERT INTO students (name, uid) VALUES ('Jesus Azuaje' , 'D65DE4B0');
+INSERT INTO students (name, uid) VALUES ('Pablo Castillo' , '0000001');
+INSERT INTO students (name, uid) VALUES ('Joan Guardia' , 'E674E1B0');
 
-CREATE TABLE if not exists marks(studentID varchar(255), 
-			   subject varchar(255), 
-                           name varchar(255), 
-                           mark decimal(3,1),
-                           FOREIGN KEY (studentID) REFERENCES students(studentID));
+CREATE TABLE if not exists marks(uid varchar(255), 
+								 subject varchar(255), 
+                                 name varchar(255), 
+                                 mark varchar(255),
+                                 FOREIGN KEY (uid) REFERENCES students(uid));
+INSERT INTO marks(uid, subject, name, mark) VALUES 
+('D65DE4B0', 'PBE', 'Puzzle1', 3),
+('E674E1B0', 'PBE', 'Puzzle1', 8),
+('D65DE4B0', 'PBE', 'Puzzle2', 7),
+('E674E1B0', 'PBE', 'Puzzle2', 8),
+('D65DE4B0', 'PBE', 'CDR', 8),
+('E674E1B0', 'PBE', 'CDR', 8),
 
-INSERT INTO marks(studentID, subject, name, mark) VALUES ('D65DE4B0', 'PBE', 'CDR', 9.2);
-INSERT INTO marks(studentID, subject, name, mark) VALUES ('0000001', 'ONELE', 'PR1', 3.7);
-INSERT INTO marks(studentID, subject, name, mark) VALUES ('E674E1B0', 'ONELE', 'PR1', 6.5);
+('0000001', 'DSBM', 'PR1', 3.7),
+('D65DE4B0', 'DSBM', 'PR1', 8.3),
+('E674E1B0', 'DSBM', 'PR1', 6.5),
+('D65DE4B0', 'DSBM', 'PR2', 7),
+('E674E1B0', 'DSBM', 'PR2', 7.2),
+('D65DE4B0', 'DSBM', 'PR3', 9.2),
+('E674E1B0', 'DSBM', 'PR3', 8.5),
+('D65DE4B0', 'DSBM', 'Control LAB', 5),
+('E674E1B0', 'DSBM', 'Control LAB', 5.3),
+('D65DE4B0', 'DSBM', 'PR4', 8.5),
+('E674E1B0', 'DSBM', 'PR4', 8.5),
+('D65DE4B0', 'DSBM', 'Parcial', 6),
+('E674E1B0', 'DSBM', 'Parcial', 6.2),
+
+('D65DE4B0', 'RP', 'PR1', 6.4),
+('E674E1B0', 'RP', 'PR1', 7.2),
+('D65DE4B0', 'RP', 'PR2', 4),
+('E674E1B0', 'RP', 'PR2', 4.3),
+('D65DE4B0', 'RP', 'PR3', 7),
+('E674E1B0', 'RP', 'PR3', 7.3),
+('D65DE4B0', 'RP', 'Control LAB', 8.2),
+('E674E1B0', 'RP', 'Control LAB', 5.5),
+('D65DE4B0', 'RP', 'PR4', 9.1),
+('E674E1B0', 'RP', 'PR4', 9),
+('D65DE4B0', 'RP', 'Parcial', 5.4),
+('E674E1B0', 'RP', 'Parcial', 5),
+
+('D65DE4B0', 'PSAVC', 'PR1', 6.9),
+('E674E1B0', 'PSAVC', 'PR1', 6.6),
+('D65DE4B0', 'PSAVC', 'PR2', 7.7),
+('E674E1B0', 'PSAVC', 'PR2', 7.1),
+('D65DE4B0', 'PSAVC', 'PR3', 7),
+('E674E1B0', 'PSAVC', 'PR3', 6.8),
+('D65DE4B0', 'PSAVC', 'Control LAB', 4.6),
+('E674E1B0', 'PSAVC', 'Control LAB', 5.7),
+('D65DE4B0', 'PSAVC', 'PR4', 7.1),
+('E674E1B0', 'PSAVC', 'PR4', 7),
+('D65DE4B0', 'PSAVC', 'Parcial', 3),
+('E674E1B0', 'PSAVC', 'Parcial', 3.3),
+
+('D65DE4B0', 'TD', 'Parcial', 4),
+('E674E1B0', 'TD', 'Parcial', 3.2);
+
+
 
 
 CREATE TABLE if not exists timetables(day varchar(255), 
-			   hour varchar(255), 
-                           subject varchar(255), 
-                           room varchar(255));
-INSERT INTO timetables(day, hour, subject, room) VALUES ('MON', '08:00:00', 'RP', 'A4-002');
+									  hour varchar(255), 
+                                      subject varchar(255), 
+                                      room varchar(255));
+INSERT INTO timetables(day, hour, subject, room) VALUES 
+('Mon', '08:00:00', 'Lab RP', 'D3-006'),
+('Mon', '10:00:00', 'RP', 'A4-105'),
+('Mon', '12:00:00', 'DSBM', 'A4-105'),
+('Tue', '08:00:00', 'PSAVC', 'A4-105'),
+('Tue', '11:00:00', 'TD', 'A4-105'),
+('Wed', '08:00:00', 'Lab PBE', 'A4-105'),
+('Thu', '08:00:00', 'PBE', 'A4-105'),
+('Thu', '10:00:00', 'RP', 'A4-105'),
+('Thu', '12:00:00', 'Lab DSBM', 'C5-S101A'),
+('Fri', '08:00:00', 'DSBM', 'A4-105'),
+('Fri', '09:00:00', 'PSAVC', 'A4-105'),
+('Fri', '11:00:00', 'TD', 'A4-105');
 
-CREATE TABLE if not exists tasks(date varchar(255), 
-			   subject varchar(255), 
-                           name varchar(255));
-INSERT INTO tasks(date, subject, name) VALUES ('2023-9-18','PBE','P1');
+CREATE TABLE if not exists tasks(date varchar(255),
+								 subject varchar(255), 
+                                 name varchar(255));
+INSERT INTO tasks(date, subject, name) VALUES 
+('2023-9-21','DSBM','PR1'),
+('2023-9-25','RP','PR1'),
+('2023-10-2','PBE','Puzzle1'),
+('2023-10-5','DSBM','PR2'),
+('2023-10-9','RP','PR2'),
+('2023-10-23','PBE','Puzzle2'),
+('2023-10-19','DSBM','PR3'),
+('2023-10-23','RP','PR3'),
+('2023-11-2','DSBM','Control LAB'),
+('2023-11-6','RP','Control LAB'),
+('2023-11-8','PSAVC','Parcial'),
+('2023-11-16','DSBM','PR4'),
+('2023-11-20','RP','PR4'),
+('2023-11-20','PBE','CDR'),
+('2023-11-22','RP','Parcial'),
+('2023-11-29','DSBM','Parcial'),
+('2023-11-30','DSBM','PR5'),
+('2023-12-4','RP','PR5'),
+('2023-11-13','TD','Parcial'),
+('2023-12-14','DSBM','PR6'),
+('2023-12-18','RP','PR6'),
+('2024-01-12','PBE','ICT');
