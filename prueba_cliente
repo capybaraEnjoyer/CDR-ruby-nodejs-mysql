@@ -17,7 +17,8 @@ class Window < Gtk::Window
 			Gtk.main_quit
 			@thr.kill if @thr
 		end
-		@uid = 
+		@uid = nil 
+		@nom = nil
 		@grid = Gtk::Grid.new
 		@grid.row_spacing = 10 
 		@grid.column_spacing = 10 
@@ -76,6 +77,7 @@ class Window < Gtk::Window
 	def rfid_ini
 		@rfid = Rfid.new
 		@thr = Thread.new do
+		
 		uid = @rfid.read_uid
 		GLib::Idle.add{
 			nom = get_student(uid)
@@ -138,11 +140,12 @@ class Window < Gtk::Window
 	end
 		
 	def get_student(uid)
-		nombre = nil
+		
 		begin
 			uri = URI("http://169.254.209.172:3000/students?uid=#{uid}")
 			res = JSON.parse(Net::HTTP.get(uri))
 			if res.first.key?("name")
+				@nombre = res.first["name"]
 				return res.first["name"]
 			else
 				puts("No existeix l'estudiant") 
@@ -151,7 +154,7 @@ class Window < Gtk::Window
 		end
 	end
 	
-	def send_query(uid, query)
+	def send_query(query)
 	
 		if query.include? '?'
 			uri = URI("http://169.254.209.172:3000/#{query}&uid=#{@uid}")
@@ -167,20 +170,36 @@ class Window < Gtk::Window
 		headers = data.first.keys
 		num_rows = data.length
 		num_cols = headers.length
-	
+
+		# Imprimir títulos en negrita
+		headers.each_with_index do |header, j|
+			next if header == 'uid'
+			label = Gtk::Label.new("<b>#{header.capitalize}</b>")
+			label.use_markup = true
+		 # Alineación izquierda centrada
+			label.set_hexpand(true) # Expandir para ocupar el ancho disponible
+			@grid.attach(label, j, 0, 1, 1)
+			label.show
+		end
+
+		# Imprimir datos
 		data.each_with_index do |row_data, i|
-			row_data.each_with_index do |(_, value), j|
-				label = Gtk::Label.new(value.to_s)	
-				@grid.attach(label, j, i, 1, 1)
+			row_data.each_with_index do |(key, value), j|
+				next if key == 'uid'
+				label = Gtk::Label.new(value.to_s)    
+				@grid.attach(label, j, i + 1, 1, 1) # Incrementar el índice para evitar imprimir sobre los títulos
 				label.show
 			end
 		end
-		
+		back_button = Gtk::Button.new(label: "Back")
+		back_button.signal_connect("clicked") do
+        # Lógica para retroceder o cerrar la interfaz
+        # Puedes definir aquí lo que debe ocurrir al presionar el botón "Back"
+		end
 	end
-	
-	
 end
 finestra = Window.new
 finestra.show_all
 finestra.rfid_ini
 Gtk.main
+
