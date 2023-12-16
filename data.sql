@@ -10,6 +10,7 @@ CREATE TABLE if not exists students(name varchar(255), uid varchar(255) PRIMARY 
 INSERT INTO students (name, uid) VALUES ('Jesus Azuaje' , 'D65DE4B0');
 INSERT INTO students (name, uid) VALUES ('Pablo Castillo' , '0000001');
 INSERT INTO students (name, uid) VALUES ('Joan Guardia' , 'E674E1B0');
+INSERT INTO students (name, uid) VALUES ('Lucas Mira' , '863E7982');
 
 CREATE TABLE if not exists marks(uid varchar(255), 
 								 subject varchar(255), 
@@ -75,18 +76,18 @@ CREATE TABLE if not exists timetables(day varchar(255),
                                       subject varchar(255), 
                                       room varchar(255));
 INSERT INTO timetables(day, hour, subject, room) VALUES 
-('Mon', '08:00:00', 'Lab RP', 'D3-006'),
-('Mon', '10:00:00', 'RP', 'A4-105'),
-('Mon', '12:00:00', 'DSBM', 'A4-105'),
-('Tue', '08:00:00', 'PSAVC', 'A4-105'),
-('Tue', '11:00:00', 'TD', 'A4-105'),
-('Wed', '08:00:00', 'Lab PBE', 'A4-105'),
-('Thu', '08:00:00', 'PBE', 'A4-105'),
-('Thu', '10:00:00', 'RP', 'A4-105'),
-('Thu', '12:00:00', 'Lab DSBM', 'C5-S101A'),
-('Fri', '08:00:00', 'DSBM', 'A4-105'),
-('Fri', '09:00:00', 'PSAVC', 'A4-105'),
-('Fri', '11:00:00', 'TD', 'A4-105');
+('1', '08:00', 'Lab RP', 'D3-006'),
+('1', '10:00', 'RP', 'A4-105'),
+('1', '12:00', 'DSBM', 'A4-105'),
+('2', '08:00', 'PSAVC', 'A4-105'),
+('2', '11:00', 'TD', 'A4-105'),
+('3', '08:00', 'Lab PBE', 'A4-105'),
+('4', '08:00', 'PBE', 'A4-105'),
+('4', '10:00', 'RP', 'A4-105'),
+('4', '12:00', 'Lab DSBM', 'C5-S101A'),
+('5', '08:00', 'DSBM', 'A4-105'),
+('5', '09:00', 'PSAVC', 'A4-105'),
+('5', '11:00', 'TD', 'A4-105');
 
 CREATE TABLE if not exists tasks(date varchar(255),
 								 subject varchar(255), 
