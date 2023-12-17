@@ -13,7 +13,7 @@ INSERT INTO students (name, uid) VALUES ('Joan Guardia' , 'E674E1B0');
 INSERT INTO students (name, uid) VALUES ('Lucas Mira' , '863E7982');
 
 CREATE TABLE if not exists marks(uid varchar(255), 
-								 subject varchar(255), 
+				 subject varchar(255), 
                                  name varchar(255), 
                                  mark varchar(255),
                                  FOREIGN KEY (uid) REFERENCES students(uid));
@@ -72,7 +72,7 @@ INSERT INTO marks(uid, subject, name, mark) VALUES
 
 
 CREATE TABLE if not exists timetables(day varchar(255), 
-									  hour varchar(255), 
+				      hour varchar(255), 
                                       subject varchar(255), 
                                       room varchar(255));
 INSERT INTO timetables(day, hour, subject, room) VALUES 
@@ -90,7 +90,7 @@ INSERT INTO timetables(day, hour, subject, room) VALUES
 ('5', '11:00', 'TD', 'A4-105');
 
 CREATE TABLE if not exists tasks(date varchar(255),
-								 subject varchar(255), 
+				 subject varchar(255), 
                                  name varchar(255));
 INSERT INTO tasks(date, subject, name) VALUES 
 ('2023-09-21','DSBM','PR1'),
