@@ -30,61 +30,47 @@ const server = http.createServer((req, res) => {
     console.log(pathname);
     const constraintsSeparadas = manejarConstraints(myURL);
     var query = `SELECT * FROM ${pathname}`;
-    var query1 = null;
     var primero = true;
     var controlDay = false;
-    var controlHour = false;
+
     var resultat1;
     console.log(constraintsSeparadas);
     for (const key in constraintsSeparadas) {
-      if (pathname == 'timetables') {
+      if (pathname == 'timetables' & (key == 'hour' || key == 'day')) {
         if (key == 'day') {
           constraintsSeparadas[key] = convertirDiaTextoANumero(constraintsSeparadas[key]);
-          controlDay = true;
-          controlHour = true; 
-        } else if (key == 'hour') {
-          controlHour = true;
-          controlDay = true; 
         }
+        controlDay = true;
       }
       if (key === 'uid' && (pathname == 'marks' || pathname == 'students')) {
-        idToFind = myURL.searchParams.get('uid'); // Utilizo parsedUrl en lugar de myURL
+        const id = constraintsSeparadas[key];
         if (pathname == 'marks') {
-          if (primero) {
-            query += ` WHERE ${key} = "${idToFind}"`;
-            primero = false;
-          } else {
-            query += ` AND ${key} = "${idToFind}"`;
-          }
+          query += primero ? ` WHERE ${key} = "${id}"` : ` AND ${key} = "${id}"`;
+          primero = false;
         }
-        else{
-          query += ` WHERE ${key} = "${idToFind}"`;
+        else {
+          query += ` WHERE ${key} = "${id}"`;
         }
 
-      } else if (key === 'uid') {
-        continue;
-      } else {
+      } else if (key !== 'uid') {
+
         const keyValue = constraintsSeparadas[key];
         const keyOperators = constraintsSeparadas[key];
-  
-        if (keyOperators && Object.keys(keyOperators).length > 0) {
+
+        if (keyOperators) {
           const ops = Object.keys(keyOperators);
-          for (const op of ops) {
-            if (keyValue[op] !== null && keyValue[op] !== undefined) {
-              if (primero) {
-                query += ` WHERE ${key} ${op} "${keyValue[op]}"`;
+          const hasValidOperators = ops.some(op => /(<|<=|>|>=)/.test(op));
+
+          if (hasValidOperators) {
+            for (const op of ops) {
+              if (keyValue[op] !== null && keyValue[op] !== undefined && /(<|<=|>|>=)/.test(op)) {
+                query += primero ? ` WHERE ${key} ${op} "${keyValue[op]}"` : ` AND ${key} ${op} "${keyValue[op]}"`;
                 primero = false;
-              } else {
-                query += ` AND ${key} ${op} "${keyValue[op]}"`;
               }
             }
-          }
-        } else {
-          if (primero) {
-            query += ` WHERE ${key} = "${keyValue}"`;
-            primero = false;
           } else {
-            query += ` AND ${key} = "${keyValue}"`;
+            query += primero ? ` WHERE ${key} = "${keyValue}"` : ` AND ${key} = "${keyValue}"`;
+            primero = false;
           }
         }
       }
@@ -94,36 +80,22 @@ const server = http.createServer((req, res) => {
     const hh = now.getHours().toString().padStart(2, 0);
     const mm = now.getMinutes().toString().padStart(2, 0);
     const hora = hh + ":" + mm;
-    
-    if (pathname == 'timetables' && controlDay == false) {
-      
+
+    if (pathname === 'timetables' && controlDay === false) {
       if (primero) {
-        //query1 += `SELECT * FROM ${pathname}` + query
-        query += ` WHERE day >= "2"`
-        primero = false;
-        //query1 += ` WHERE day < "${day}"`
+        query += ` WHERE (day = "${day}" AND hour >= "${hora}") OR day > "${day}" OR day < "${day}" OR (day = "${day}" AND hour < "${hora}")`;
+      } else {
+        let query1 = query.replace("SELECT * FROM timetables WHERE", "");
+        query = `SELECT * FROM timetables WHERE (day = "${day}" AND hour >= "${hora}") AND (${query1}) OR (day > "${day}" AND (${query1})) OR (day < "${day}" AND (${query1})) OR (day = "${day}" AND hour < "${hora}" AND (${query1}))`;
       }
-      else {
-        //query1 += `SELECT * FROM ${pathname}` + query
-        query += ` AND day >= "2"`
-        //query1 += ` AND day < "${day}"`
-      }
-    }
-    if(pathname == 'timetables' && controlHour == false){
-      if (primero) {
-        //query1 += `SELECT * FROM ${pathname}` + query
-        query += ` WHERE hour >= "${hora}"`
-        primero = false;
-        //query1 += ` WHERE day < "${day}"`
-      }
-      else {
-        query += ` AND hour >= "${hora}"`
-      }
+      query += ` ORDER BY CASE WHEN day = '${day}' AND hour >= "${hora}" THEN 1 
+          WHEN day > '${day}' THEN 2 
+          WHEN day < '${day}' AND day = '${day}' AND hour < "${hora}" THEN 3 
+          ELSE 4 END`;
     }
 
     query += " ;";
     console.log(query);
-    //var resultat;
     db.query(query, (err, results) => {
       if (err) {
         console.error('An error occurred while executing the query', err);
@@ -138,7 +110,6 @@ const server = http.createServer((req, res) => {
         }
       });
       if (results.length > 0) {
-        //resultat = results;
         console.log(results);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(results));
@@ -148,34 +119,16 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ 'message': 'No user found with the specified ID.' }));
       }
     });
-    /*if (query1 != null) {
-      
-      db.query(query, (err, results1) => {
-        if (results1.length > 0) {
-          resultat1 = results1;
-          console.log(results1);
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(results1));
-        }
-      });
-      var resultatFin = resultat.concat(resultat1);
-      res.end(JSON.stringify(resultatFin));
-    }
-    else{
-      res.end(JSON.stringify(resultat));
-    }*/
   }
   else {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not Found');
   }
-
-
 });
 
 function convertirNumeroADiaTexto(numeroDia) {
   const diasSemana = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  return diasSemana[numeroDia]; 
+  return diasSemana[numeroDia];
 }
 
 function convertirDiaTextoANumero(diaTexto) {
@@ -190,20 +143,20 @@ function manejarConstraints(url) {
   const constraintsSeparadas = {};
   for (const [key, value] of constraints.entries()) {
 
-      var [cleanKey, operator] = key.split(/\[(gt|lt|gte|lte)\]/).filter(Boolean);
+    var [cleanKey, operator] = key.split(/\[(gt|lt|gte|lte)\]/).filter(Boolean);
 
-      if (!constraintsSeparadas[cleanKey]) {
-          constraintsSeparadas[cleanKey] = {};
-      }
-      if (operator) {
-          var casos = { gte: ">=", lte: "<=", gt: ">", lt: "<" };
-          operator = operator.replace(/gte|lte|lt|gt/gi, function (matched) {
-              return casos[matched];
-          });
-          constraintsSeparadas[cleanKey][operator] = value;
-      } else {
-          constraintsSeparadas[cleanKey] = value;
-      }
+    if (!constraintsSeparadas[cleanKey]) {
+      constraintsSeparadas[cleanKey] = {};
+    }
+    if (operator) {
+      var casos = { gte: ">=", lte: "<=", gt: ">", lt: "<" };
+      operator = operator.replace(/gte|lte|lt|gt/gi, function (matched) {
+        return casos[matched];
+      });
+      constraintsSeparadas[cleanKey][operator] = value;
+    } else {
+      constraintsSeparadas[cleanKey] = value;
+    }
   }
   return constraintsSeparadas;
 }
