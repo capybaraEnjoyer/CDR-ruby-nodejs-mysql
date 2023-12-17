@@ -1,9 +1,5 @@
 CREATE DATABASE if not exists prueba;
 use prueba;
--- ALTER USER 'GuardiaAlonso'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Jjooaann03';
--- flush privileges;
--- Se puede crear otra columna llamada "ID" en marks para utilizar [ FOREIGN KEY (ID) REFERENCES students(studentID) ] ? -> si
--- Las tablas timetables y tasks son comunes -> si
 
 GRANT ALL PRIVILEGES ON *.* TO 'GuardiaAlonso'@'localhost' WITH GRANT OPTION;
 CREATE TABLE if not exists students(name varchar(255), uid varchar(255) PRIMARY KEY);
