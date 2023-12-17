@@ -6,7 +6,6 @@ require "json"
 require_relative "Rfid"
 require_relative "Display"
 
-
 class Window < Gtk::Window 
 	def initialize
 		super
@@ -155,9 +154,8 @@ class Window < Gtk::Window
 		end
 		begin
 			res = JSON.parse(Net::HTTP.get(uri))
-			if res.key?('error')
+			if  res.is_a?(Hash) && res.key?('error')
 				 puts "Error: #{res['error']}"
-				 @display.error_querry
 			else
 				print_taula(res, query)
 			end
@@ -186,7 +184,7 @@ class Window < Gtk::Window
 		label.show
 
 		if num_rows > 13
-		
+
 			headers.each_with_index do |key, j|
 				next if key == 'uid'
 				label = Gtk::Label.new("<b>#{key.capitalize}</b>")
@@ -199,8 +197,7 @@ class Window < Gtk::Window
 					@grid.attach(label, j, 5, 1, 1)
 				end
 				label.show
-			end
-			
+			end	
 			headers.each_with_index do |key, j|
 				next if key == 'uid'
 				label = Gtk::Label.new("<b>#{key.capitalize}</b>")
@@ -214,7 +211,6 @@ class Window < Gtk::Window
 				end
 				label.show
 			end
-			
 			data_first_half = data[0..12] 
 			data_second_half = data[13..-1] 
 			data_first_half.each_with_index do |row_data, i|
@@ -281,12 +277,9 @@ class Window < Gtk::Window
 	def show_query(nom)
 		start_timer
 		clear_grid
-
 		welcome_label1 = Gtk::Label.new("")
-		
 		welcome_label1.set_markup("Benvingut")
-		welcome_label2 = Gtk::Label.new("")
-		
+		welcome_label2 = Gtk::Label.new("")	
 		welcome_label2.set_markup("<b>#{nom}</b>")
 		blanc1 = crear_blanc
 		blanc2 = crear_blanc
