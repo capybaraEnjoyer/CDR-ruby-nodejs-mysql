@@ -131,11 +131,13 @@ class Window < Gtk::Window
 	end
 		
 	def get_student(uid)
-		
 		begin
 			uri = URI("http://169.254.209.172:3000/students?uid=#{uid}")
 			res = JSON.parse(Net::HTTP.get(uri))
-			if res.first.key?("name")
+			if res.is_a?(Array) && res[0] == "No user found with the specified ID."
+				puts("No existeix l'estudiant") 
+				return nil
+			elsif res.is_a?(Array) && res.first.is_a?(Hash) && res.first.key?("name")
 				@nombre = res.first["name"]
 				return res.first["name"]
 			else
