@@ -171,7 +171,7 @@ class Window < Gtk::Window
 		if index
 			titulo = query[0...index] 
 		else
-			titulo = query # Si no hay interrogante, palabra2 es igual a palabra
+			titulo = query
 		end
 		headers = data.first.keys
 		num_rows = data.length
