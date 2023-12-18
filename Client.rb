@@ -158,6 +158,7 @@ class Window < Gtk::Window
 			res = JSON.parse(Net::HTTP.get(uri))
 			if  res.is_a?(Hash) && res.key?('error')
 				 puts "Error: #{res['error']}"
+				@display.error_querry
 			else
 				print_taula(res, query)
 			end
