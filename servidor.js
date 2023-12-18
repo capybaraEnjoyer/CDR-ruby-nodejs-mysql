@@ -98,12 +98,7 @@ function handler(myURL) {
   var controlDay = false;
   console.log(constraintsSeparadas);
   for (const key in constraintsSeparadas) {
-    if (pathname == 'timetables' & (key == 'hour' || key == 'day')) {
-      if (key == 'day') {
-        constraintsSeparadas[key] = convertirDiaTextoANumero(constraintsSeparadas[key]);
-      }
-      controlDay = true;
-    }
+
     if (key === 'uid' && (pathname == 'marks' || pathname == 'students')) {
       const id = constraintsSeparadas[key];
       query += primero ? ` WHERE ${key} = "${id}"` : ` AND ${key} = "${id}"`;
@@ -114,6 +109,9 @@ function handler(myURL) {
       const keyValue = constraintsSeparadas[key];
       const keyOperators = constraintsSeparadas[key];
 
+      if (pathname == 'timetables' & (key == 'hour' || key == 'day')) {
+        controlDay = true;
+      }
       if (keyOperators) {
         const ops = Object.keys(keyOperators);
         const hasValidOperators = ops.some(op => /(<|<=|>|>=)/.test(op));
@@ -121,15 +119,22 @@ function handler(myURL) {
         if (hasValidOperators) {
           for (const op of ops) {
             if (keyValue[op] !== null && keyValue[op] !== undefined && /(<|<=|>|>=)/.test(op)) {
+              if (key == 'day') {
+                keyValue[op] = convertirDiaTextoANumero(keyValue[op]);
+              }
               query += primero ? ` WHERE ${key} ${op} "${keyValue[op]}"` : ` AND ${key} ${op} "${keyValue[op]}"`;
               primero = false;
             }
           }
         } else {
+          if (key == 'day') {
+            constraintsSeparadas[key] = convertirDiaTextoANumero(constraintsSeparadas[key]);
+          }
           query += primero ? ` WHERE ${key} = "${keyValue}"` : ` AND ${key} = "${keyValue}"`;
           primero = false;
         }
       }
+
     }
   }
   const now = new Date();
@@ -157,3 +162,4 @@ function handler(myURL) {
 server.listen(port, () => {
   console.log(`Server is listening on ${port}/`);
 });
+
