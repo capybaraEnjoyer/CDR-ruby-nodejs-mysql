@@ -1,6 +1,5 @@
 CREATE DATABASE if not exists prueba;
 use prueba;
-
 GRANT ALL PRIVILEGES ON *.* TO 'GuardiaAlonso'@'localhost' WITH GRANT OPTION;
 CREATE TABLE if not exists students(name varchar(255), uid varchar(255) PRIMARY KEY);
 INSERT INTO students (name, uid) VALUES ('Jesus Azuaje' , 'D65DE4B0');
@@ -9,7 +8,7 @@ INSERT INTO students (name, uid) VALUES ('Joan Guardia' , 'E674E1B0');
 INSERT INTO students (name, uid) VALUES ('Lucas Mira' , '863E7982');
 
 CREATE TABLE if not exists marks(uid varchar(255), 
-				 subject varchar(255), 
+								 subject varchar(255), 
                                  name varchar(255), 
                                  mark varchar(255),
                                  FOREIGN KEY (uid) REFERENCES students(uid));
@@ -68,7 +67,7 @@ INSERT INTO marks(uid, subject, name, mark) VALUES
 
 
 CREATE TABLE if not exists timetables(day varchar(255), 
-				      hour varchar(255), 
+									  hour varchar(255), 
                                       subject varchar(255), 
                                       room varchar(255));
 INSERT INTO timetables(day, hour, subject, room) VALUES 
@@ -86,7 +85,7 @@ INSERT INTO timetables(day, hour, subject, room) VALUES
 ('5', '11:00', 'TD', 'A4-105');
 
 CREATE TABLE if not exists tasks(date varchar(255),
-				 subject varchar(255), 
+				subject varchar(255), 
                                  name varchar(255));
 INSERT INTO tasks(date, subject, name) VALUES 
 ('2023-09-21','DSBM','PR1'),
@@ -106,9 +105,8 @@ INSERT INTO tasks(date, subject, name) VALUES
 ('2023-11-22','RP','Parcial'),
 ('2023-11-29','DSBM','Parcial'),
 ('2023-11-30','DSBM','PR5'),
-('2023-12-4','RP','PR5'),
+('2023-12-04','RP','PR5'),
 ('2023-11-13','TD','Parcial'),
 ('2023-12-14','DSBM','PR6'),
 ('2023-12-18','RP','PR6'),
 ('2024-01-12','PBE','ICT');
-
